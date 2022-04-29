@@ -6,14 +6,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include("cmake/HunterGate.cmake")
 
 HunterGate(
-        URL sd"https://github.com/cpp-pm/hunter/archive/v0.23.314.tar.gz"
+        URL "https://github.com/cpp-pm/hunter/archive/v0.23.314.tar.gz"
         SHA1 "95c47c92f68edb091b5d6d18924baabe02a6962a"
 )
 
 project(factorial)
-
-hunter_add_package(GTest)
-find_package(GTest CONFIG REQUIRED)
 
 set(config_bin "lib/cmake/${PROJECT_NAME}")
 set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
@@ -29,7 +26,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 include(CMakePackageConfigHelpers)
 
-configure_package_config_file (
+configure_package_config_file(
         "cmake/Config.cmake.in"
         "${project_config}"
         INSTALL_DESTINATION "${config_bin}"
@@ -42,7 +39,7 @@ install(TARGETS ${PROJECT_NAME}
         )
 
 install(
-        FILES "include/factorial.hpp"
+        FILES "include/factorial.h"
         DESTINATION "include"
 )
 
