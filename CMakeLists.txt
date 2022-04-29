@@ -3,14 +3,6 @@ cmake_minimum_required(VERSION 3.14)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(BUILD_TESTS "Building tests" ON)
-
-set(
-        HUNTER_CACHE_SERVERS
-        "https://github.com/bmstu-iu8-cpp-sem-3/hunter-cache"
-        CACHE STRING "Default cache server"
-)
-
 include("cmake/HunterGate.cmake")
 
 HunterGate(
@@ -18,11 +10,15 @@ HunterGate(
         SHA1 "95c47c92f68edb091b5d6d18924baabe02a6962a"
 )
 
-project(print)
+project(factorial)
 
 hunter_add_package(GTest)
 find_package(GTest CONFIG REQUIRED)
 
+set(config_bin "lib/cmake/${PROJECT_NAME}")
+set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(project_config "${generated_dir}/${PROJECT_NAME}Config.cmake")
+set(TARGETS_EXPORT_NAME "${PROJECT_NAME}")
 
 add_library(${PROJECT_NAME} STATIC ${CMAKE_CURRENT_SOURCE_DIR}/sources/factorial.cpp)
 
@@ -31,11 +27,28 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         "$<INSTALL_INTERFACE:include>"
         )
 
-if (BUILD_TESTS)
-    add_executable(tests
-            ${CMAKE_CURRENT_SOURCE_DIR}/tests/test.cpp
-            )
-    target_link_libraries(tests ${PROJECT_NAME} GTest::gtest_main)
-    enable_testing()
-    add_test(NAME unit_tests COMMAND tests)
-endif ()
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file (
+        "cmake/Config.cmake.in"
+        "${project_config}"
+        INSTALL_DESTINATION "${config_bin}"
+)
+
+install(TARGETS ${PROJECT_NAME}
+        EXPORT ${TARGETS_EXPORT_NAME}
+        RUNTIME DESTINATION bin
+        INCLUDES DESTINATION "include"
+        )
+
+install(
+        FILES "include/factorial.hpp"
+        DESTINATION "include"
+)
+
+install(EXPORT "${TARGETS_EXPORT_NAME}"
+        FILE "${TARGETS_EXPORT_NAME}.cmake"
+        DESTINATION "${config_bin}")
+
+install(FILES "${project_config}"
+        DESTINATION "${config_bin}")
